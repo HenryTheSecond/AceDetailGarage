@@ -1,0 +1,28 @@
+version: '3'
+services:
+  mysqlDB:
+    image: mysql:8.0
+    container_name: ${MYSQL_NAME}
+    ports:
+      - 3307:3306
+    healthcheck:
+      test: mysqladmin ping -h localhost -u root --password=$$MYSQL_ROOT_PASSWORD
+      timeout: 10s
+      retries: 10
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+  garage:
+    image: quangke/garage:1.0
+    ports:
+      - 8081:8080
+    depends_on:
+      mysqlDB:
+        condition: service_healthy
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DATABASE=${MYSQL_NAME}
+      - EMAIL=${EMAIL}
+      - PASSWORD=${PASSWORD}
+      - TOKEN_DURATION=${TOKEN_DURATION}
